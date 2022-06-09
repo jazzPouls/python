@@ -8,12 +8,20 @@ class SnakePart(Widget):
     pass
 
 class GameScreen(Widget):
+
     step_size = 40
     movement_x = 0
     movement_y = 0
     snake_parts = []
 
     def new_game(self):
+        to_be_removed = []
+        for child in self.children:
+            if isinstance(child, SnakePart):
+                to_be_removed.append(child)
+        for x in to_be_removed:
+            self.remove_widget(x)
+
         self.snake_parts = []
         self.movement_x = 0
         self.movement_y = 0
@@ -73,6 +81,7 @@ class GameScreen(Widget):
             new_part.y = last_y
             self.snake_parts.append(new_part)
             self.add_widget(new_part)
+            app.speed_up()
 
         #check for snake colliding with Snake
         for part in self.snake_parts[1:]:
@@ -86,10 +95,18 @@ class GameScreen(Widget):
     pass
 
 class MainApp(App):
+
+    refresh_rate = .25
+
     def on_start(self):
         self.root.new_game()
-
-        Clock.schedule_interval(self.root.next_frame, .25)
+        Clock.schedule_interval(self.root.next_frame, self.refresh_rate)
     pass
 
-MainApp().run()
+    def speed_up(self):
+        self.refresh_rate *= .96
+        Clock.schedule_interval(self.root.next_frame, self.refresh_rate)
+
+
+app = MainApp()
+app.run()
